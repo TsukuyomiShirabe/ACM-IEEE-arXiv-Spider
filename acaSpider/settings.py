@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'acaSpider.spiders'
 # URL for Spider
 ACM_URL = ['https://dl.acm.org/action/doSearch?ConceptID=1'] # 填入ACM的地址
 ARXIV_URL = ['???']
-IEEE_URL = ['???']
+IEEE_URL = ['https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=datamining&highlight=true&returnType=SEARCH&matchPubs=true&returnFacets=ALL&pageNumber=1']
 
 # Time
 START_TIME = datetime.datetime.now()
@@ -93,6 +93,7 @@ DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.retry.RetryMiddleware': 90,
     'scrapy_proxies.RandomProxy': 100,
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+    'acaSpider.middlewares.ChromeMiddleware': 544,
     'acaSpider.middlewares.RandomUserAgentMiddleware': 543,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
 }

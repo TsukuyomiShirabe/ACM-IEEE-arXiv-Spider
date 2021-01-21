@@ -18,11 +18,13 @@ class IEEESpider(scrapy.Spider):
     name = "IEEE_Spider"
     allowed_domains = ["ieeexplore.ieee.org"]
     start_urls = get_project_settings().get('IEEE_URL')
+    
+
 
     def parse(self, response):
         # Developing in progress
         item = AcaspiderItem()
-        response = response.xpath('//div[@class="List-results-items"]')
+        subresponse = response.xpath('//xpl-results-list/div[@class="List-results-items"]')
         item['title'] = []
         item['authors'] = []
         item['year'] = []
@@ -31,18 +33,94 @@ class IEEESpider(scrapy.Spider):
         item['url'] = []
         item['abstract'] = []
         item['citation'] = []
-        print(len(response))
-        for res in response:
-            item['title'].append(res.xpath('.//xpl-results-item/div/div/h2/a/text()').extract()[0])
-            item['authors'].append(self.merge_authors(res.xpath('.//xpl-results-item/div/div[@class="col result-item-align"]/p[@class="author"]//span//xpl-modal//a//span//text()').extract()))
-            item['year'].append(self.process4year(res.xpath('.//xpl-results-item/div/div[@class="col result-item-align"]/div[@class="description"]/div[@class="publisher-info-container"]/span/text()').extract()[0]))
-            item['typex'].append(res.xpath('.//xpl-results-item/div/div[@class="col result-item-align"]/div[@class="description"]/a/text()').extract()[0])
-            item['subjects'].append(' ')
-            item['url'].append('https://ieeexplore.ieee.org'+res.xpath('.//xpl-results-item/div/div/h2/a/@href').extract()[0])
-            item['abstract'].append(res.xpath('.//div[@class="js-displayer-content u-mt-1 stats-SearchResults_DocResult_ViewMore hide"]/span/text()').extract()[0])
-            item['citation'].append(str(-1))
 
+        # print(len(subresponse))
+
+        # Extracting info
+        # Function properly as of 2021.01.21
+        for res in subresponse:
+            try:
+                title = res.xpath('.//xpl-results-item//div[@class="col result-item-align"]/h2/a').xpath('string(.)').extract()[0]
+            except Exception as e:
+                title = '[Title Unknown]'
+            finally:
+                item['title'].append(title)
+
+            try:
+                authors_raw = res.xpath('.//xpl-results-item//div[@class="col result-item-align"]//p[@class="author"]//a').xpath('string(.)').extract()
+                authors = self.merge_authors(authors_raw)
+            except Exception as e:
+                authors = '[Authors Unknown]'
+            finally:
+                item['authors'].append(authors)
+
+            try:
+                year_raw = res.xpath('.//xpl-results-item//div[@class="col result-item-align"]/div[@class="description"]/div[@class="publisher-info-container"]/span[1]').xpath('string(.)').extract()[0]
+                year = self.process4year(year_raw)
+            except Exception as e:
+                year = '[Publication Year Unknown]'
+            finally:
+                item['year'].append(year)
+
+            try:
+                typex = res.xpath('.//xpl-results-item//div[@class="col result-item-align"]/div[@class="description"]/a').xpath('string(.)').extract()[0]
+            except Exception as e:
+                typex = '[Origins Unknown]'
+            finally:
+                item['typex'].append(typex)
+
+            item['subjects'].append(' ')
+
+            try:
+                url = 'https://ieeexplore.ieee.org'+res.xpath('.//xpl-results-item/div/div/h2/a/@href').extract()[0]
+            except Exception as e:
+                url = '[URL Unknown]'
+            finally:
+                item['url'].append(url)
+
+
+            try:
+                abstract = res.xpath('.//div[@class="js-displayer-content u-mt-1 stats-SearchResults_DocResult_ViewMore hide"]/span/text()').extract()[0]
+            except Exception as e:
+                abstract = '[Abstract Unknown]'
+            finally:
+                item['abstract'].append(abstract)
+
+            try:
+                citation_raw = res.xpath('.//xpl-results-item//div[@class="col result-item-align"]/div[@class="description"]//a[contains(@href,"tabFilter=papers#citations")]/text()').extract()[0]
+                citation = self.process4citation(citation_raw)
+            except Exception as e:
+                citation = '-1'
+            finally:
+                item['citation'].append(citation)
+        
         yield item
+
+        print(str(len(subresponse))+' results')
+
+        # Next page
+        if len(subresponse) > 0:
+            current_url = response.request.url
+            next_url = ''
+            string_start = current_url.find('&pageNumber=')
+            string_end = current_url.find('&', string_start+1)
+            if string_start == -1:
+                next_url = current_url+'&pageNumber=2'
+            elif string_end == -1:
+                page_number = int(current_url[string_start+12:])
+                page_number = page_number+1
+                next_url = current_url[:string_start+12]+str(page_number)
+            else:
+                page_number = int(current_url[string_start+12:string_end])
+                page_number = page_number+1
+                next_url = current_url[:string_start+12]+str(page_number)+current_url[string_end:]
+            
+            yield scrapy.Request(next_url, callback=self.parse)
+
+
+
+
+
 
     def merge_authors(self, au_list):
         au_str = ''
@@ -51,4 +129,7 @@ class IEEESpider(scrapy.Spider):
         return au_str.strip(',')
 
     def process4year(self, year):
-        return year[year.index(': ') + 1:].strip()
+        return year[year.find(': ') + 1:].strip()
+
+    def process4citation(self, citation):
+        return citation[citation.find(' (')+2:citation.find(')')].strip()

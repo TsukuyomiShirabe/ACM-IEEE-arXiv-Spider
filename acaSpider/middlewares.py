@@ -13,6 +13,9 @@ from selenium import webdriver
 import time
 import random
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class AcaspiderSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -138,7 +141,7 @@ class RandomUserAgentMiddleware(object):
 
 class JSMiddleware(object):
     def process_request(self, request, spider):
-        driver = webdriver.PhantomJS("/Users/reacubeth/Downloads/phantomjs-2.1.1-macosx/bin/phantomjs")  # 指定使用的浏览器
+        driver = webdriver.PhantomJS()  # 指定使用的浏览器
         driver.get(request.url)
         time.sleep(1)
         # js = "var q=document.documentElement.scrollTop=10000"
@@ -148,5 +151,28 @@ class JSMiddleware(object):
         time.sleep(random.randint(1, 2))
 
         body = driver.page_source
-        print("访问" + request.url)
+        print("PhantomJS: " + request.url)
+        return HtmlResponse(driver.current_url, body=body, encoding='utf-8', request=request)
+
+class ChromeMiddleware(object):
+    def process_request(self, request, spider):
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        driver = webdriver.Chrome(options=options)  # 指定使用的浏览器
+        driver.get(request.url)
+        try:
+            element = WebDriverWait(driver,60).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "List-results-items"))
+            )
+        finally:
+            pass
+        #time.sleep(5)
+        # js = "var q=document.documentElement.scrollTop=10000"
+        js = "window.scrollTo(0,document.body.scrollHeight)"
+
+        driver.execute_script(js)
+        time.sleep(random.randint(1, 2))
+
+        body = driver.page_source
+        print("Chrome: " + request.url)
         return HtmlResponse(driver.current_url, body=body, encoding='utf-8', request=request)
