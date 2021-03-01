@@ -17,6 +17,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+import os
+
 class AcaspiderSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
@@ -139,40 +141,26 @@ class RandomUserAgentMiddleware(object):
         request.headers.setdefault('User-Agent', get_ua())
 
 
-class JSMiddleware(object):
-    def process_request(self, request, spider):
-        driver = webdriver.PhantomJS()  # 指定使用的浏览器
-        driver.get(request.url)
-        time.sleep(1)
-        # js = "var q=document.documentElement.scrollTop=10000"
-        js = "window.scrollTo(0,document.body.scrollHeight)"
-
-        driver.execute_script(js)
-        time.sleep(random.randint(1, 2))
-
-        body = driver.page_source
-        print("PhantomJS: " + request.url)
-        return HtmlResponse(driver.current_url, body=body, encoding='utf-8', request=request)
 
 class ChromeMiddleware(object):
     def process_request(self, request, spider):
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        driver = webdriver.Chrome(options=options)  # 指定使用的浏览器
+        # headless mode, do not display chrome window
+        # options.add_argument('--headless')
+        # disable all logs by selenium
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_experimental_option('detach', True)
+        driver = webdriver.Chrome(chrome_options=options)  # 指定使用的浏览器
         driver.get(request.url)
-        try:
-            element = WebDriverWait(driver,60).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "List-results-items"))
-            )
-        finally:
-            pass
-        #time.sleep(5)
+        
+        time.sleep(6) # longer sleep time guarantees more robustness
         # js = "var q=document.documentElement.scrollTop=10000"
-        js = "window.scrollTo(0,document.body.scrollHeight)"
+        driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
 
-        driver.execute_script(js)
-        time.sleep(random.randint(1, 2))
+
+        time.sleep(2)
 
         body = driver.page_source
-        print("Chrome: " + request.url)
+        os.system('')
+        print('\033[1;33mChrome: ' + request.url+ '\033[0m')
         return HtmlResponse(driver.current_url, body=body, encoding='utf-8', request=request)

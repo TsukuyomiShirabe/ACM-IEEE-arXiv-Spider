@@ -39,12 +39,12 @@ class arXivSpider(scrapy.Spider):
         multi_response = response.xpath('//feed//entry')
         item['authors'] = []
         item['subjects'] = []
-        item['typex'] = []
+        item['origin'] = []
         item['citation'] = []
         for res in multi_response:
             item['authors'].append(','.join(res.xpath('.//author/name/text()')))
             item['subjects'].append(','.join(res.xpath('.//category/@term')))
-            item['typex'].append(''.join(self.replace_NULL(res.xpath('.//arxivjournal_ref/text()'))))
+            item['origin'].append(''.join(self.replace_NULL(res.xpath('.//arxivjournal_ref/text()'))))
             item['citation'].append(str(-1))
 
         yield item

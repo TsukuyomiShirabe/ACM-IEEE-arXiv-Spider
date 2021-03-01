@@ -29,7 +29,7 @@ class ACMSpider(scrapy.Spider):
         item['title'] = []
         item['authors'] = []
         item['year'] = []
-        item['typex'] = []
+        item['origin'] = []
         item['subjects'] = []
         item['url'] = []
         item['abstract'] = []
@@ -52,9 +52,9 @@ class ACMSpider(scrapy.Spider):
                 item['year'].append(' ')
 
             try:
-                item['typex'].append(res.xpath('.//span[@class="epub-section__title"]/text()').extract()[0])
+                item['origin'].append(res.xpath('.//span[@class="epub-section__title"]/text()').extract()[0])
             except:
-                item['typex'].append(' ')
+                item['origin'].append(' ')
 
             try:
                 item['url'].append(res.xpath('.//a[@class="issue-item__doi dot-separator"]/text()').extract()[0])
@@ -110,7 +110,7 @@ class ACMSpider(scrapy.Spider):
         item['title'] = list(map(self.remove_html, response.xpath('//span[@class="hlFld-Title"]/a/text()').extract()))
         item['authors'] = list(map(self.remove_html, response.xpath('//ul[@aria-label="authors"]').extract()))
         item['year'] = list(map(self.remove4year, list(map(self.remove_html, response.xpath('//span[@class="dot-separator"]').extract()))))
-        item['typex'] = response.xpath('//span[@class="epub-section__title"]/text()').extract()
+        item['origin'] = response.xpath('//span[@class="epub-section__title"]/text()').extract()
         item['subjects'] = response.xpath('//ul[@class="rlist--inline facet__list--applied"]/li/span/text()').extract() * len(item['title'])
         item['url'] = response.xpath('//a[@class="issue-item__doi dot-separator"]/text()').extract()
         item['abstract'] = list(map(self.remove_html, response.xpath('//div[@class="issue-item__abstract truncate-text trunc-done"]/p').extract()))

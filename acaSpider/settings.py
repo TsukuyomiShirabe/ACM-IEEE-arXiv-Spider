@@ -20,6 +20,7 @@ NEWSPIDER_MODULE = 'acaSpider.spiders'
 ACM_URL = ['https://dl.acm.org/action/doSearch?ConceptID=1'] # 填入ACM的地址
 ARXIV_URL = ['???']
 IEEE_URL = ['https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=datamining&highlight=true&returnType=SEARCH&matchPubs=true&returnFacets=ALL&pageNumber=1']
+GRAPH_START_URL = ['https://ieeexplore.ieee.org/document/5428646']
 
 # Time
 START_TIME = datetime.datetime.now()

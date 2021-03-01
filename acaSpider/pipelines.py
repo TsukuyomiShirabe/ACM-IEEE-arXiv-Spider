@@ -14,16 +14,16 @@ from twisted.enterprise import adbapi
 
 class AcaspiderPipeline(object):
     def process_item(self, item, spider):
-        for title, authors, year, typex, subjects, url, abstract, citation in zip(item['title'], item['authors'], item['year'],
-                item['typex'], item['subjects'], item['url'], item['abstract'],
+        for title, authors, year, origin, subjects, url, abstract, citation in zip(item['title'], item['authors'], item['year'],
+                item['origin'], item['subjects'], item['url'], item['abstract'],
                 item['citation']):
 
             txt_str = '\n========================' + '\ntitle: ' + title + '\nauthors: ' + authors + '\nyear: ' + year + \
-                      '\ntypex: ' + typex + '\nsubjects: ' + subjects + '\nurl: ' + url + '\nabstract: ' + abstract + \
+                      '\norigin: ' + origin + '\nsubjects: ' + subjects + '\nurl: ' + url + '\nabstract: ' + abstract + \
                       '\ncitation: ' + citation + '\n========================'
             self.write2txt(txt_str)
 
-            json_str = {'title': title, 'authors': authors, 'year': year, 'type': typex, 'subjects': subjects,
+            json_str = {'title': title, 'authors': authors, 'year': year, 'type': origin, 'subjects': subjects,
                         'url': url, 'abstract': abstract, 'citation': citation}
             self.write2json(json_str)
         return item
@@ -74,18 +74,18 @@ class MysqlPipeline(object):
         insert into ACM_Data(title,authors,year,type,subjects,url,abstract,citation) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)
                     """
 
-        for title, authors, year, typex, subjects, url, abstract, citation in zip(item['title'], item['authors'],
+        for title, authors, year, origin, subjects, url, abstract, citation in zip(item['title'], item['authors'],
                                                                         item['year'],
-                                                                        item['typex'], item['subjects'], item['url'],
+                                                                        item['origin'], item['subjects'], item['url'],
                                                                         item['abstract'],
                                                                         item['citation']):
 
-            cursor.execute(insert_sql, (title, authors, year, typex, subjects, url, abstract, citation))
+            cursor.execute(insert_sql, (title, authors, year, origin, subjects, url, abstract, citation))
 
 
     def handle_error(self, failure):
         if failure:
             # 打印错误信息
-            print(failure)
+            # print(failure)
             logging.error('$ messages from MysqlPipeline: ' + str(failure))
 

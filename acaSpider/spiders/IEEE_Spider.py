@@ -1,12 +1,13 @@
 import scrapy
 from acaSpider.items import AcaspiderItem
 from scrapy.utils.project import get_project_settings
+from urllib.parse import urlparse
 
 '''
 title = scrapy.Field()
 authors = scrapy.Field()
 year = scrapy.Field()
-typex = scrapy.Field()
+origin = scrapy.Field()
 subjects = scrapy.Field()
 url = scrapy.Field()
 abstract = scrapy.Field()
@@ -15,8 +16,11 @@ citation = scrapy.Field()
 
 
 class IEEESpider(scrapy.Spider):
+    '''
+    Crawling from IEEE Xplore search results
+    '''
     name = "IEEE_Spider"
-    allowed_domains = ["ieeexplore.ieee.org"]
+    allowed_domains = ['ieeexplore.ieee.org']
     start_urls = get_project_settings().get('IEEE_URL')
     
 
@@ -28,11 +32,12 @@ class IEEESpider(scrapy.Spider):
         item['title'] = []
         item['authors'] = []
         item['year'] = []
-        item['typex'] = []
+        item['origin'] = []
         item['subjects'] = []
         item['url'] = []
         item['abstract'] = []
         item['citation'] = []
+
 
         # print(len(subresponse))
 
@@ -63,11 +68,11 @@ class IEEESpider(scrapy.Spider):
                 item['year'].append(year)
 
             try:
-                typex = res.xpath('.//xpl-results-item//div[@class="col result-item-align"]/div[@class="description"]/a').xpath('string(.)').extract()[0]
+                origin = res.xpath('.//xpl-results-item//div[@class="col result-item-align"]/div[@class="description"]/a').xpath('string(.)').extract()[0]
             except Exception as e:
-                typex = '[Origins Unknown]'
+                origin = '[Origins Unknown]'
             finally:
-                item['typex'].append(typex)
+                item['origin'].append(origin)
 
             item['subjects'].append(' ')
 

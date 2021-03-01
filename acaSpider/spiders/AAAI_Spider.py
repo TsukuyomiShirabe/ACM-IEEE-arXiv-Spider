@@ -11,7 +11,7 @@ from acaSpider.proxyDownloader import getProxy
     title = scrapy.Field()
     authors = scrapy.Field()
     year = scrapy.Field()
-    typex = scrapy.Field()
+    origin = scrapy.Field()
     subjects = scrapy.Field()
     url = scrapy.Field()
     abstract = scrapy.Field()
@@ -58,7 +58,7 @@ class AAAISpider(scrapy.Spider):
             item['year'] = ['July 11–15, 2010, Atlanta, Georgia'] * len(item['title'])
         elif '08' in AAAISpider.start_urls[0]:
             item['year'] = ['July 13–17, 2008, Chicago, Illinois'] * len(item['title'])
-        item['typex'] = ['Association for the Advancement of Artificial Intelligence (AAAI)'] * len(item['title'])
+        item['origin'] = ['Association for the Advancement of Artificial Intelligence (AAAI)'] * len(item['title'])
         if '19' in AAAISpider.start_urls[0]:
             item['url'] = (response.xpath('//p[@class="left"]/a/@href').extract())[::2]
         else:
@@ -87,7 +87,7 @@ class AAAISpider(scrapy.Spider):
             item['title'] = item['title'][8:]
             item['authors'] = item['authors'][8:]
             item['year'] = item['year'][8:]
-            item['typex'] = item['typex'][8:]
+            item['origin'] = item['origin'][8:]
             item['url'] = item['url'][8:]
             item['abstract'] = item['abstract'][8:]
             item['citation'] = item['citation'][8:]

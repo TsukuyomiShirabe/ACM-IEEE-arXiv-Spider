@@ -13,7 +13,7 @@ class AcaspiderItem(scrapy.Item):
     title = scrapy.Field()
     authors = scrapy.Field()
     year = scrapy.Field()
-    typex = scrapy.Field()
+    origin = scrapy.Field()
     subjects = scrapy.Field()
     url = scrapy.Field()
     abstract = scrapy.Field()
