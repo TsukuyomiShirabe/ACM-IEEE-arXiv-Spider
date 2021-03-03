@@ -84,19 +84,16 @@ class GraphSpider(scrapy.Spider):
         title = json_to_dict.get('formulaStrippedArticleTitle', '[Title Unknown]')
         dict_item['title'] = title
 
+        print('1')
         # AUTHORS
         authors_raw = json_to_dict.get('authors', [dict()])
-        authors_list = []
-        authors = ''
+        authors = []
         for item in authors_raw:
             _temp_name = item.get('name')
             if _temp_name != None:
-                authors_list.append(_temp_name)
-        for item in authors_list:
-            authors = authors+item+';'
-        authors.strip(';')
+                authors.append(_temp_name)
         dict_item['authors'] = authors
-
+        print('2')
         # YEAR, key = 'publicationYear' / 'copyrightYear'
         year_p = json_to_dict.get('publicationYear')
         year_c = json_to_dict.get('copyrightYear')
