@@ -153,7 +153,7 @@ class ChromeMiddleware(object):
         driver = webdriver.Chrome(chrome_options=options)  # 指定使用的浏览器
         driver.get(request.url)
         
-        time.sleep(6) # longer sleep time guarantees more robustness
+        time.sleep(2) # longer sleep time guarantees more robustness
         # js = "var q=document.documentElement.scrollTop=10000"
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
 

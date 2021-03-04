@@ -54,11 +54,11 @@ class GraphSpider(scrapy.Spider):
             dict_item = self.get_IEEE_item(response)
         else:
             pass
-
+        '''
         for k,v in dict_item.items():
             item[k].append(v)
             print(k,v)
-
+        '''
         yield item
 
 
@@ -84,7 +84,6 @@ class GraphSpider(scrapy.Spider):
         title = json_to_dict.get('formulaStrippedArticleTitle', '[Title Unknown]')
         dict_item['title'] = title
 
-        print('1')
         # AUTHORS
         authors_raw = json_to_dict.get('authors', [dict()])
         authors = []
@@ -93,7 +92,7 @@ class GraphSpider(scrapy.Spider):
             if _temp_name != None:
                 authors.append(_temp_name)
         dict_item['authors'] = authors
-        print('2')
+        
         # YEAR, key = 'publicationYear' / 'copyrightYear'
         year_p = json_to_dict.get('publicationYear')
         year_c = json_to_dict.get('copyrightYear')
@@ -122,6 +121,22 @@ class GraphSpider(scrapy.Spider):
         # CITATION, key = 'citationCount'
         citation = json_to_dict.get('citationCount', '-1')
         dict_item['citation'] = citation
+
+        # CITATION LIST
+
+        # REFERENCE LIST
+        reference_container_path = subresponse.xpath('//xpl-reference-panel/section/div[@class="document-ft-section-container"]/div/div[@class="reference-container"]')
+
+        reference_list = []
+        for idx in xrange(len(reference_container_path)):
+            pass
+            # print(reference_container_path)
+            
+
+
+            reference_item = dict()
+
+            reference_list.append(reference_item)
 
 
 
